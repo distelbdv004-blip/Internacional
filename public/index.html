@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparador Internacional Europa · Astepimer S.L.</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#f4f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size:14px; color:#1a1a2e;
+    min-height:100vh; padding:20px;
+  }
+
+  .page { max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:16px; }
+
+  .card {
+    background:#fff; border-radius:10px;
+    border:1px solid #e4e6ea; padding:20px 22px;
+  }
+  .card-title {
+    font-size:10px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:#888; margin-bottom:14px;
+  }
+
+  .inputs-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field { display:flex; flex-direction:column; gap:6px; }
+  .field label { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#888; }
+  select, input[type=number] {
+    border:1px solid #d8dae0; border-radius:6px;
+    padding:10px 12px; font-size:14px; font-family:inherit;
+    color:#1a1a2e; background:#fff;
+  }
+  select:focus, input[type=number]:focus { outline:none; border-color:#2563eb; }
+
+  .fuel-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:end; }
+  .fuel-item { display:flex; flex-direction:column; gap:4px; }
+  .fuel-item label { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#888; }
+  .fuel-item small { font-size:10px; color:#aaa; }
+  .fuel-note {
+    font-size:11px; color:#888; margin-top:6px;
+    padding:6px 10px; background:#f8f9fb; border-radius:6px;
+    border-left:3px solid #d8dae0;
+  }
+  .fuel-status {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #eef2ff;
+    border-left: 3px solid #2563eb;
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .fuel-status a { color: #2563eb; text-decoration: none; }
+  .fuel-status a:hover { text-decoration: underline; }
+  .btn-refresh {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: background 0.2s;
+    width: 100%;
+  }
+  .btn-refresh:hover { background: #1d4ed8; }
+  .btn-refresh:disabled { background: #94a3b8; cursor: not-allowed; }
+
+  .infobar {
+    background:#fffbeb; border:1px solid #fde68a; border-radius:8px;
+    padding:9px 14px; font-size:11px; color:#92400e;
+    display:flex; align-items:center; gap:6px;
+  }
+
+  .results { display:flex; flex-direction:column; gap:8px; }
+  .row {
+    background:#fff; border:1px solid #e4e6ea; border-radius:10px;
+    padding:14px 18px; display:flex; align-items:center; gap:14px;
+    cursor:pointer; transition:border-color .15s;
+    position:relative;
+  }
+  .row:hover { border-color:#c0c4cc; }
+  .row.winner { border:2px solid #16a34a; }
+  .row.no-service { opacity:.5; cursor:default; }
+
+  .rank { font-size:15px; font-weight:700; color:#bbb; width:20px; text-align:center; flex-shrink:0; }
+  .row.winner .rank { color:#16a34a; }
+
+  .carrier-logo { width:44px; height:26px; border-radius:5px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; }
+  .lg-gls  { background:#0032a0; color:#fff; }
+  .lg-dhl  { background:#ffcc00; color:#1a1200; }
+
+  .carrier-info { flex:1; min-width:0; }
+  .carrier-name { font-size:14px; font-weight:600; }
+  .carrier-sub { font-size:12px; color:#888; margin-top:1px; }
+
+  .price-block { text-align:right; flex-shrink:0; }
+  .price-main { font-size:22px; font-weight:700; }
+  .price-main.green { color:#16a34a; }
+  .price-diff { font-size:11px; color:#888; margin-top:1px; }
+  .price-diff.best { color:#16a34a; font-weight:600; }
+
+  .detail { display:none; margin-top:10px; padding-top:12px; border-top:1px solid #f0f0f0; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .detail.open { display:grid; }
+  .dk { background:#f8f9fb; border-radius:6px; padding:8px 10px; }
+  .dk-l { font-size:9px; text-transform:uppercase; color:#aaa; margin-bottom:3px; }
+  .dk-v { font-size:13px; font-weight:600; }
+  .dk-v.green { color:#16a34a; }
+  .dk-v.orange { color:#ea580c; }
+
+  .brexit-note { grid-column:1/-1; background:#fff7ed; border:1px solid #fed7aa; border-radius:6px; padding:7px 10px; font-size:11px; color:#9a3412; }
+
+  .range-card { margin-top:4px; }
+  .range-tabs { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .rtab { font-size:11px; padding:5px 12px; border-radius:20px; border:1px solid #e4e6ea; background:#fff; cursor:pointer; }
+  .rtab.active { background:#1a1a2e; border-color:#1a1a2e; color:#fff; }
+  .rtable { display:none; }
+  .rtable.active { display:block; overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  thead th { text-align:left; padding:7px 10px; background:#f4f5f7; color:#888; font-weight:600; border-bottom:1px solid #e4e6ea; }
+  tbody td { padding:6px 10px; border-bottom:1px solid #f0f0f0; }
+  tbody tr.hl td { background:#f0fdf4; color:#15803d; font-weight:600; }
+
+  @media(max-width:600px){ .inputs-grid, .fuel-grid { grid-template-columns:1fr; } .detail { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div style="padding:4px 0 2px">
+    <div style="font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;font-weight:600">Astepimer S.L. · Sabadell · Exportación</div>
+    <div style="font-size:22px;font-weight:700;color:#1a1a2e;margin-top:2px">Comparador Internacional Europa</div>
+  </div>
+
+  <!-- ENVÍO -->
+  <div class="card">
+    <div class="card-title">Envío</div>
+    <div class="inputs-grid">
+      <div class="field">
+        <label>País destino</label>
+        <select id="sel-country" onchange="onCountryChange()">
+          <option value="">— Selecciona un país —</option>
+          <option value="DE">🇩🇪 Alemania</option><option value="AT">🇦🇹 Austria</option><option value="BE">🇧🇪 Bélgica</option>
+          <option value="BG">🇧🇬 Bulgaria</option><option value="HR">🇭🇷 Croacia</option><option value="DK">🇩🇰 Dinamarca</option>
+          <option value="SK">🇸🇰 Eslovaquia</option><option value="SI">🇸🇮 Eslovenia</option><option value="EE">🇪🇪 Estonia</option>
+          <option value="FI">🇫🇮 Finlandia</option><option value="FR">🇫🇷 Francia</option><option value="GR">🇬🇷 Grecia</option>
+          <option value="NL">🇳🇱 Holanda</option><option value="HU">🇭🇺 Hungría</option><option value="IE">🇮🇪 Irlanda</option>
+          <option value="IT">🇮🇹 Italia</option><option value="LV">🇱🇻 Letonia</option><option value="LI">🇱🇮 Liechtenstein</option>
+          <option value="LT">🇱🇹 Lituania</option><option value="LU">🇱🇺 Luxemburgo</option><option value="MT">🇲🇹 Malta</option>
+          <option value="MC">🇲🇨 Mónaco</option><option value="NO">🇳🇴 Noruega</option><option value="PL">🇵🇱 Polonia</option>
+          <option value="PT">🇵🇹 Portugal</option><option value="GB">🇬🇧 Reino Unido</option><option value="CZ">🇨🇿 Rep. Checa</option>
+          <option value="RO">🇷🇴 Rumania</option><option value="SM">🇸🇲 San Marino</option><option value="SE">🇸🇪 Suecia</option>
+          <option value="CH">🇨🇭 Suiza</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Peso real (kg)</label>
+        <input type="number" id="inp-kg" value="5" min="0.5" max="1000" step="0.5" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- COMBUSTIBLE -->
+  <div class="card">
+    <div class="card-title">Suplementos combustible</div>
+    <div class="fuel-grid">
+      <div class="fuel-item">
+        <label>% Combustible GLS</label>
+        <small>Extraído de clickgasoil.com · Actualizable manualmente</small>
+        <input type="number" id="fuel-gls" value="10.0" min="0" max="50" step="0.1" oninput="calc()">
+      </div>
+      <div class="fuel-item">
+        <label>% CO₂ GLS (Climate Protect)</label>
+        <small>Fijo 1,5% sobre portes</small>
+        <input type="number" id="fuel-gls-co2" value="1.5" min="0" max="10" step="0.1" oninput="calc()">
+      </div>
+      <div class="fuel-item">
+        <label>% Combustible DHL</label>
+        <small>Extraído automáticamente de dhl.com · Actualizable manualmente</small>
+        <input type="number" id="fuel-dhl" value="16.5" min="0" max="50" step="0.1" oninput="calc()">
+      </div>
+    </div>
+
+    <div class="fuel-note">
+      <strong>GLS:</strong> Combustible + CO₂ aplicados sobre porte base. &nbsp;|&nbsp;
+      <strong>DHL:</strong> Valor cargado automáticamente desde DHL eCommerce. &nbsp;|&nbsp;
+      <strong>Reino Unido:</strong> DHL aplica suplemento Brexit 0,25€/kg (mín. 5€)
+    </div>
+
+    <!-- Estado GLS -->
+    <div class="fuel-status" id="gls-status-box">
+      📌 <strong>Último valor GLS cargado:</strong> <span id="gls-status-text">Cargando...</span><br>
+      🔗 Fuente: <a href="https://www.clickgasoil.com/c/precio-gasoleo-a-catalua" target="_blank">clickgasoil.com - Precio Gasóleo A Cataluña</a>
+      <button id="btn-refresh-gls" class="btn-refresh">🔄 Actualizar combustible GLS</button>
+    </div>
+
+    <!-- Estado DHL -->
+    <div class="fuel-status" style="margin-top:8px; background:#f0f9ff;">
+      📌 <strong>Último valor DHL cargado:</strong> <span id="dhl-status-text">Cargando...</span><br>
+      🔗 Fuente: <a href="https://www.dhl.com/es-es/ecommerce/home/business-to-business-shipments/custom-solutions/fuel-surcharge.html" target="_blank">dhl.com/es/suplemento-combustible</a>
+      <button id="btn-refresh-dhl" class="btn-refresh">🔄 Actualizar combustible DHL</button>
+    </div>
+  </div>
+
+  <!-- INFOBAR -->
+  <div class="infobar" id="infobar" style="display:none">
+    <span>ℹ️</span>
+    <span id="infobar-text"></span>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="card" style="text-align:center;color:#aaa;padding:30px">Selecciona un país de destino para ver la comparativa de precios →</div>
+  </div>
+
+  <!-- RANGE TABLES -->
+  <div class="card range-card" id="range-card" style="display:none">
+    <div class="card-title">Tabla de tarifas por tramo de peso</div>
+    <div class="range-tabs">
+      <button class="rtab active" onclick="showTab('gls')">GLS EuroBusinessParcel</button>
+      <button class="rtab" onclick="showTab('dhl')">DHL ConnectPlus</button>
+    </div>
+    <div id="tab-gls" class="rtable active">
+      <table>
+        <thead>
+          <tr><th>Tramo</th><th>Base</th><th>+Comb. (GLS)</th><th>+CO₂ (1,5%)</th><th>TOTAL</th></tr>
+        </thead>
+        <tbody id="tbody-gls"></tbody>
+      </table>
+    </div>
+    <div id="tab-dhl" class="rtable">
+      <table>
+        <thead>
+          <tr><th>Hasta kg</th><th>Base</th><th>+Combustible</th><th>+Brexit (GB)</th><th>TOTAL</th></tr>
+        </thead>
+        <tbody id="tbody-dhl"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ==================== DATOS DE TARIFAS ====================
+const FLAGS = {DE:'🇩🇪',AT:'🇦🇹',BE:'🇧🇪',BG:'🇧🇬',HR:'🇭🇷',DK:'🇩🇰',SK:'🇸🇰',SI:'🇸🇮',EE:'🇪🇪',FI:'🇫🇮',FR:'🇫🇷',GR:'🇬🇷',NL:'🇳🇱',HU:'🇭🇺',IE:'🇮🇪',IT:'🇮🇹',LV:'🇱🇻',LI:'🇱🇮',LT:'🇱🇹',LU:'🇱🇺',MT:'🇲🇹',MC:'🇲🇨',NO:'🇳🇴',PL:'🇵🇱',PT:'🇵🇹',GB:'🇬🇧',CZ:'🇨🇿',RO:'🇷🇴',SM:'🇸🇲',SE:'🇸🇪',CH:'🇨🇭'};
+const NAMES = {DE:'Alemania',AT:'Austria',BE:'Bélgica',BG:'Bulgaria',HR:'Croacia',DK:'Dinamarca',SK:'Eslovaquia',SI:'Eslovenia',EE:'Estonia',FI:'Finlandia',FR:'Francia',GR:'Grecia',NL:'Holanda',HU:'Hungría',IE:'Irlanda',IT:'Italia',LV:'Letonia',LI:'Liechtenstein',LT:'Lituania',LU:'Luxemburgo',MT:'Malta',MC:'Mónaco',NO:'Noruega',PL:'Polonia',PT:'Portugal',GB:'Reino Unido',CZ:'Rep. Checa',RO:'Rumania',SM:'San Marino',SE:'Suecia',CH:'Suiza'};
+
+// GLS
+const GLS_BREAKS = [1,2,3,4,5,7,10,15,20,25,30,35,40];
+const GLS = {
+  DE:{t:'2-3 días',p:[11.08,11.08,14.26,15.31,15.31,17.45,19.96,24.79,30.23,35.76,35.76,40.12,40.12],a:1.27},
+  AT:{t:'3-4 días',p:[12.02,12.02,17.93,19.81,19.81,20.43,23.47,27.02,32.18,41.04,41.04,45.71,45.71],a:1.42},
+  BE:{t:'2-3 días',p:[12.02,12.02,16.50,17.68,17.68,17.87,21.13,25.02,29.94,38.88,38.88,42.08,42.08],a:1.15},
+  BG:{t:'4-5 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  HR:{t:'3-4 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  DK:{t:'3-4 días',p:[12.02,12.02,17.93,19.81,19.81,20.43,23.47,27.02,32.18,41.04,41.04,45.71,45.71],a:1.42},
+  SK:{t:'3-4 días',p:[14.65,14.65,25.48,27.68,27.68,28.53,33.11,37.16,43.39,53.49,53.49,58.77,58.77],a:1.81},
+  SI:{t:'3-4 días',p:[14.65,14.65,25.48,27.68,27.68,28.53,33.11,37.16,43.39,53.49,53.49,58.77,58.77],a:1.81},
+  EE:{t:'4-5 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  FI:{t:'5-7 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  FR:{t:'1-2 días',p:[11.08,11.08,15.48,16.60,16.60,17.87,21.02,25.77,32.18,40.11,40.11,43.38,43.38],a:1.36},
+  GR:{t:'6-8 días',p:[25.55,25.55,48.27,51.68,51.68,59.41,77.49,98.76,133.47,184.85,184.85,188.06,188.06],a:5.14},
+  NL:{t:'2-3 días',p:[12.02,12.02,17.93,19.81,19.81,20.43,23.47,27.02,32.18,41.04,41.04,45.71,45.71],a:1.42},
+  HU:{t:'2-3 días',p:[24.24,24.24,44.62,53.21,53.21,53.87,61.98,66.41,75.86,103.26,103.26,106.47,106.47],a:2.70},
+  IE:{t:'4-5 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:3.30},
+  IT:{t:'2-3 días',p:[12.41,12.41,17.93,19.15,19.15,20.43,24.41,28.01,34.14,42.91,42.91,45.95,45.95],a:1.43},
+  LV:{t:'5-7 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  LT:{t:'4-5 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  LU:{t:'2-3 días',p:[12.02,12.02,17.93,19.81,19.81,20.43,23.47,27.02,32.18,41.04,41.04,45.71,45.71],a:1.42},
+  MT:{t:'4-5 días',p:[26.10,26.10,40.55,53.21,53.21,65.34,90.62,135.07,188.38,289.22,289.22,292.43,292.43],a:8.22},
+  MC:{t:'2-3 días',p:[11.08,11.08,15.48,16.60,16.60,17.87,21.02,25.77,32.18,40.11,40.11,43.38,43.38],a:1.36},
+  NO:{t:'4-6 días',p:[33.62,33.62,43.60,47.48,47.48,49.38,57.75,65.66,79.21,105.73,105.73,108.94,108.94],a:2.90},
+  PL:{t:'3-4 días',p:[12.96,12.96,20.18,21.93,21.93,23.84,27.23,29.98,34.43,40.44,40.44,50.62,50.62],a:1.57},
+  GB:{t:'3-4 días',p:[12.02,12.02,17.52,19.15,19.15,20.43,23.47,27.02,32.18,41.04,41.04,45.71,45.71],a:1.68},
+  CZ:{t:'2-3 días',p:[12.02,12.02,17.93,19.81,19.81,20.43,23.47,27.02,32.18,41.04,41.04,45.71,45.71],a:1.42},
+  RO:{t:'4-5 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  SE:{t:'4-6 días',p:[24.24,24.24,33.42,36.82,36.82,38.75,46.01,53.29,65.22,90.20,90.20,93.41,93.41],a:2.57},
+  CH:{t:'3-4 días',p:[15.22,15.22,25.26,27.68,27.68,28.32,32.41,37.67,44.79,56.61,56.61,59.48,59.48],a:1.82},
+};
+function glsBase(iso,kg){ let d=GLS[iso]; if(!d)return null; if(kg<=40){for(let i=0;i<GLS_BREAKS.length;i++)if(kg<=GLS_BREAKS[i])return d.p[i];} return d.p[12]+(kg-40)*d.a; }
+
+// DHL
+const DHL_TABLE = [[1,13.71,14.46,24.47,24.47,36.01,16.04,12.31,16.10,11.39,14.60],[2,14.65,16.56,25.66,25.66,36.80,16.92,12.68,16.75,11.83,16.93],[3,15.89,18.96,28.44,28.44,40.79,17.80,13.07,17.61,13.04,20.72],[4,17.20,21.49,29.88,29.88,43.31,19.10,13.98,18.25,14.36,22.84],[5,18.54,23.03,32.87,32.87,45.88,22.29,15.50,18.71,15.86,25.91],[6,19.70,26.26,35.37,35.37,47.57,22.55,15.75,19.70,16.88,28.57],[7,20.96,28.28,37.63,37.63,51.44,23.86,17.04,20.80,18.75,32.44],[8,21.92,30.91,39.98,39.98,58.65,26.97,18.53,21.39,19.70,34.78],[9,23.73,34.09,40.09,40.09,61.22,27.96,19.24,21.83,21.16,37.41],[10,28.22,34.72,47.57,47.57,63.79,30.91,21.19,23.02,24.81,45.29],[11,28.64,38.52,48.02,48.02,64.88,31.16,22.51,23.59,24.96,47.60],[12,29.05,40.53,48.46,48.46,65.95,31.91,23.35,24.63,25.11,49.92],[13,29.73,40.62,52.23,52.23,72.69,33.09,24.63,25.34,25.79,50.54],[14,30.41,45.03,55.90,55.90,72.77,40.41,26.64,25.91,27.58,55.22],[15,33.15,46.20,59.60,59.60,72.83,42.89,27.72,26.42,32.62,64.83],[16,34.94,49.18,62.32,62.32,80.82,43.82,28.73,27.48,33.45,66.99],[17,36.72,52.12,65.05,65.05,80.94,44.75,29.75,28.16,34.31,69.16],[18,38.48,55.08,67.05,67.05,85.12,45.67,31.11,29.05,35.16,71.34],[19,40.25,58.05,68.42,68.42,86.05,46.54,32.12,29.95,36.01,73.51],[20,42.03,61.00,70.48,70.48,95.36,56.30,35.73,30.67,36.85,75.68],[21,42.77,62.36,76.65,76.65,98.57,57.03,36.22,31.30,38.19,79.56],[22,43.50,63.73,78.87,78.87,99.22,57.76,36.73,32.07,39.51,83.46],[23,44.25,65.09,81.09,81.09,99.88,58.47,38.58,32.67,40.84,87.34],[24,44.99,66.43,83.30,83.30,101.22,59.19,39.59,33.49,42.16,91.23],[25,45.74,67.79,85.55,85.55,102.57,59.92,47.68,34.22,43.49,95.14],[26,49.56,70.40,91.79,91.79,105.67,63.20,48.65,35.06,46.02,97.54],[27,53.38,73.04,94.81,94.81,106.14,66.51,49.61,35.98,48.56,99.95],[28,57.22,75.65,97.85,97.85,112.86,69.79,50.60,36.48,51.09,102.37],[29,61.06,78.25,100.90,100.90,119.08,73.07,51.56,37.32,53.64,104.78],[30,64.88,80.87,103.93,103.93,120.47,76.36,53.50,37.48,56.17,107.19],[31,65.94,84.40,109.99,109.99,121.85,78.34,57.72,38.37,58.86,110.64],[32,66.99,87.96,112.71,112.71,128.54,80.30,61.94,39.27,61.54,114.09],[33,68.05,91.49,115.41,115.41,135.27,82.28,66.16,40.15,64.25,117.54],[34,69.11,95.02,118.13,118.13,141.97,84.26,70.36,41.04,66.94,121.00],[35,70.18,98.57,123.54,123.54,148.65,86.22,74.57,41.94,69.63,124.42],[36,71.22,102.11,126.28,126.28,155.38,88.19,78.80,42.83,72.32,127.88],[37,72.29,105.64,128.97,128.97,162.07,90.17,83.02,43.72,75.00,131.33],[38,73.35,109.18,131.70,131.70,168.77,92.13,87.22,44.61,77.72,134.78],[39,74.39,112.72,134.41,134.41,175.48,94.11,91.42,45.51,80.40,138.23],[40,75.45,116.28,137.13,137.13,182.18,96.09,95.64,46.38,83.09,141.67],[41,78.28,118.29,138.99,138.99,188.89,99.30,97.68,47.14,83.97,145.11],[42,81.09,120.29,140.87,140.87,195.59,102.51,99.68,47.88,84.85,148.56],[43,83.92,122.33,142.72,142.72,202.29,105.72,101.70,48.63,85.72,152.02],[44,86.72,124.33,144.60,144.60,208.99,108.90,103.72,49.38,86.59,155.47],[45,89.54,126.34,146.45,146.45,215.70,112.12,105.73,50.12,87.45,158.91],[50,98.88,136.43,155.80,155.80,223.75,128.16,115.81,54.14,91.84,176.15],[55,102.52,149.59,185.02,185.02,231.79,129.15,116.36,58.13,98.29,189.37],[60,106.19,162.54,214.23,214.23,239.83,130.13,116.91,62.12,104.77,202.57],[65,130.59,175.50,218.84,218.84,247.90,131.80,117.44,66.39,117.93,214.99],[70,137.09,188.44,223.47,223.47,259.59,133.48,128.52,71.31,131.11,227.42],[80,140.56,213.30,241.28,241.28,266.61,145.88,143.12,77.78,138.51,239.56],[90,150.46,226.91,262.12,262.12,293.13,158.10,161.79,84.33,145.89,282.40],[100,167.67,276.04,282.96,282.96,324.17,170.31,178.38,90.82,153.30,330.16],[200,285.75,510.93,519.53,519.53,636.14,308.15,306.56,169.00,274.13,626.58],[300,477.61,803.86,803.86,803.86,913.22,422.84,421.37,253.69,424.99,926.10],[500,618.47,1267.65,1319.30,1319.30,1515.88,634.12,670.97,375.78,604.45,1535.76]];
+const DHL_ZONE = {DE:{z:'Alemania',c:7},AT:{z:'Zona 3',c:3},BE:{z:'Zona 1',c:1},BG:{z:'Zona 4',c:4},HR:{z:'Zona 4',c:4},DK:{z:'Zona 3',c:3},SK:{z:'Zona 4',c:4},SI:{z:'Zona 4',c:4},EE:{z:'Zona 4',c:4},FI:{z:'Zona 3',c:3},FR:{z:'Francia',c:6},GR:{z:'Zona 3',c:3},NL:{z:'Holanda',c:9},HU:{z:'Zona 4',c:4},IE:{z:'Zona 3',c:3},IT:{z:'Italia',c:8},LV:{z:'Zona 4',c:4},LI:{z:'Zona 5',c:5},LT:{z:'Zona 4',c:4},LU:{z:'Zona 2',c:2},MT:{z:'Zona 4',c:4},MC:{z:'Francia',c:6},NO:{z:'Zona 5',c:5},PL:{z:'Polonia',c:10},PT:{z:'Zona 1',c:1},GB:{z:'Zona 2',c:2},CZ:{z:'Zona 4',c:4},RO:{z:'Zona 4',c:4},SM:{z:'Italia',c:8},SE:{z:'Zona 3',c:3},CH:{z:'Zona 5',c:5}};
+function dhlBase(iso,kg){ let z=DHL_ZONE[iso]; if(!z)return null; let rkg=Math.ceil(kg); let row=DHL_TABLE[DHL_TABLE.length-1]; for(let i=0;i<DHL_TABLE.length;i++){if(rkg<=DHL_TABLE[i][0]){row=DHL_TABLE[i];break;}} return row[z.c]; }
+function dhlBrexit(kg){ return Math.max(5,kg*0.25); }
+
+// ==================== HELPERS ====================
+function fmt(v,d=2){ if(v===null||isNaN(v))return 'N/D'; return v.toFixed(d).replace('.',',')+' €'; }
+function fmtNum(v,d=2){ if(v===null||isNaN(v))return null; return v.toFixed(d).replace('.',','); }
+
+let openDetail = null;
+function toggleDetail(id){ openDetail=openDetail===id?null:id; document.querySelectorAll('.detail').forEach(d=>{ d.classList.toggle('open',d.id.replace('detail-','')===openDetail); }); }
+function onCountryChange(){ openDetail=null; calc(); }
+
+// ==================== CARGAR DATOS DEL BACKEND ====================
+async function loadDHLSurcharge() {
+    try {
+        const response = await fetch('/api/dhl-fuel');
+        const data = await response.json();
+        if (data.rate) {
+            document.getElementById('fuel-dhl').value = data.rate;
+            const statusSpan = document.getElementById('dhl-status-text');
+            if (data.fullDate) {
+                statusSpan.innerHTML = `${data.rate}% (${data.fullDate}) · Actualizado: ${new Date(data.lastUpdate).toLocaleDateString('es-ES')}`;
+            } else {
+                statusSpan.innerHTML = `${data.rate}% · Actualizado: ${new Date(data.lastUpdate).toLocaleDateString('es-ES')}`;
+            }
+            calc();
+        }
+    } catch (error) {
+        console.error('Error al cargar combustible DHL:', error);
+        document.getElementById('dhl-status-text').innerHTML = '⚠️ No se pudo cargar automáticamente';
+    }
+}
+
+async function refreshDHLSurcharge() {
+    const btn = document.getElementById('btn-refresh-dhl');
+    if (!btn) return;
+    const originalText = btn.textContent;
+    btn.textContent = '🔄 Actualizando DHL...';
+    btn.disabled = true;
+    try {
+        const response = await fetch('/api/refresh-dhl', { method: 'POST' });
+        const data = await response.json();
+        if (data.rate) {
+            document.getElementById('fuel-dhl').value = data.rate;
+            await loadDHLSurcharge();
+            alert(`✅ Combustible DHL actualizado a ${data.rate}%`);
+        }
+    } catch (error) {
+        alert('❌ Error al actualizar DHL. Asegúrate que el servidor Node.js esté corriendo.');
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function loadGLSFuelSurcharge() {
+    try {
+        const response = await fetch('/api/gls-fuel');
+        const data = await response.json();
+        if (data.rate) {
+            document.getElementById('fuel-gls').value = data.rate;
+            const statusSpan = document.getElementById('gls-status-text');
+            if (data.pricePerLiter) {
+                statusSpan.innerHTML = `${data.rate}% (basado en ${data.pricePerLiter.toFixed(3)} €/L) · ${new Date(data.lastUpdate).toLocaleDateString('es-ES')}`;
+            } else {
+                statusSpan.innerHTML = `${data.rate}% · Actualizado: ${new Date(data.lastUpdate).toLocaleDateString('es-ES')}`;
+            }
+            calc();
+        }
+    } catch (error) {
+        console.error('Error al cargar combustible GLS:', error);
+        document.getElementById('gls-status-text').innerHTML = '⚠️ No se pudo cargar automáticamente';
+    }
+}
+
+async function refreshGLSFuelSurcharge() {
+    const btn = document.getElementById('btn-refresh-gls');
+    if (!btn) return;
+    const originalText = btn.textContent;
+    btn.textContent = '🔄 Actualizando GLS...';
+    btn.disabled = true;
+    try {
+        const response = await fetch('/api/refresh-gls', { method: 'POST' });
+        const data = await response.json();
+        if (data.rate) {
+            document.getElementById('fuel-gls').value = data.rate;
+            await loadGLSFuelSurcharge();
+            alert(`✅ Combustible GLS actualizado a ${data.rate}%`);
+        }
+    } catch (error) {
+        alert('❌ Error al actualizar GLS. Asegúrate que el servidor Node.js esté corriendo.');
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+// ==================== CÁLCULO PRINCIPAL ====================
+function calc(){
+    const iso = document.getElementById('sel-country').value;
+    if(!iso){
+        document.getElementById('results').innerHTML='<div class="card" style="text-align:center;color:#aaa;padding:30px">Selecciona un país de destino para ver la comparativa de precios →</div>';
+        document.getElementById('range-card').style.display='none';
+        document.getElementById('infobar').style.display='none';
+        return;
+    }
+
+    const kg = parseFloat(document.getElementById('inp-kg').value)||5;
+    const fGls = parseFloat(document.getElementById('fuel-gls').value)||0;
+    const fCo2 = parseFloat(document.getElementById('fuel-gls-co2').value)||0;
+    const fDhl = parseFloat(document.getElementById('fuel-dhl').value)||0;
+    const isGB = iso==='GB';
+
+    const gB = glsBase(iso,kg);
+    const dB = dhlBase(iso,kg);
+
+    const gFuel = gB!==null ? gB*fGls/100 : null;
+    const gCo2a = gB!==null ? gB*fCo2/100 : null;
+    const dFuel = dB!==null ? dB*fDhl/100 : null;
+    const dBrx = isGB && dB!==null ? dhlBrexit(kg) : 0;
+
+    const gT = gB!==null ? gB+(gFuel||0)+(gCo2a||0) : null;
+    const dT = dB!==null ? dB+(dFuel||0)+dBrx : null;
+
+    const carriers = [
+        { id:'gls', name:'GLS EuroBusinessParcel', sub: GLS[iso]?`Tarifa Astepimer 2026 · Tránsito ${GLS[iso].t}`:'—', logo:'GLS', logoClass:'lg-gls', total:gT, details:[{l:'Base',v:gB},{l:`Combustible (${fGls}%)`,v:gFuel},{l:`CO₂ (${fCo2}%)`,v:gCo2a,cls:'orange'},{l:'Total',v:gT,cls:'green'}], brexit:false },
+        { id:'dhl', name:'DHL Parcel ConnectPlus', sub: DHL_ZONE[iso]?`${DHL_ZONE[iso].z} · Oferta económica Astepimer`:'—', logo:'DHL CP', logoClass:'lg-dhl', total:dT, details:[{l:'Base',v:dB},{l:`Combustible (${fDhl}%)`,v:dFuel},{l:isGB?'Brexit (0,25€/kg)':null,v:isGB?dBrx:null,cls:'orange'},{l:'Total',v:dT,cls:'green'}], brexit:isGB }
+    ];
+
+    const avail = carriers.filter(c=>c.total!==null).sort((a,b)=>a.total-b.total);
+    const unavail = carriers.filter(c=>c.total===null);
+    const sorted = [...avail,...unavail];
+    const minTotal = avail.length ? avail[0].total : null;
+
+    const ib = document.getElementById('infobar');
+    const ibT = document.getElementById('infobar-text');
+    ibT.textContent = `Precios sin IVA · Peso: ${kg} kg · Destino: ${FLAGS[iso]} ${NAMES[iso]}`;
+    ib.style.display='flex';
+
+    const results = document.getElementById('results');
+    results.innerHTML = '';
+    sorted.forEach((c,i)=>{
+        const rank = c.total!==null ? i+1 : '—';
+        const isWinner = c.total!==null && c.total===minTotal;
+        const diff = c.total!==null && minTotal!==null && !isWinner ? c.total-minTotal : null;
+
+        const row = document.createElement('div');
+        row.className = 'row'+(isWinner?' winner':'')+(c.total===null?' no-service':'');
+        const detItems = c.details.filter(d=>d.l!==null).map(d=>`<div class="dk"><div class="dk-l">${d.l}</div><div class="dk-v ${d.cls||''}">${fmt(d.v)}</div></div>`).join('');
+        const brxNote = c.brexit ? `<div class="brexit-note">⚠️ Suplemento Brexit DHL incluido: 0,25 €/kg · mínimo 5 €/envío</div>` : '';
+        
+        row.innerHTML = `
+            <div class="rank">${rank}</div>
+            <div class="carrier-logo ${c.logoClass}">${c.logo}</div>
+            <div class="carrier-info"><div class="carrier-name">${c.name}</div><div class="carrier-sub">${c.sub}</div></div>
+            <div class="price-block">${c.total!==null ? `<div class="price-main ${isWinner?'green':''}">${fmtNum(c.total)} €</div><div class="price-diff ${isWinner?'best':''}">${isWinner?'★ Más barato':diff!==null?`+${fmtNum(diff)} € vs mejor`:''}</div>` : `<div class="price-na">No disponible</div>`}</div>
+            <div class="detail ${openDetail===c.id?'open':''}" id="detail-${c.id}">${detItems}${brxNote}</div>`;
+        
+        if(c.total!==null){ row.addEventListener('click',()=>toggleDetail(c.id)); }
+        results.appendChild(row);
+    });
+
+    buildGlsTable(iso,kg,fGls,fCo2);
+    buildDhlTable(iso,kg,fDhl,isGB);
+    document.getElementById('range-card').style.display='block';
+}
+
+function buildGlsTable(iso,kg,fGls,fCo2){ let d=GLS[iso]; let tb=document.getElementById('tbody-gls'); if(!d){tb.innerHTML='<tr><td colspan="5" style="color:#aaa;text-align:center">No disponible</td></tr>';return;} let labels=['≤ 1 kg','≤ 2 kg','≤ 3 kg','≤ 4 kg','≤ 5 kg','≤ 7 kg','≤ 10 kg','≤ 15 kg','≤ 20 kg','≤ 25 kg','≤ 30 kg','≤ 35 kg','≤ 40 kg']; tb.innerHTML=GLS_BREAKS.map((bkg,i)=>{ let b=d.p[i],fc=b*fGls/100,co=b*fCo2/100,tot=b+fc+co; let hl=kg<=bkg&&(i===0||kg>GLS_BREAKS[i-1]); return`<tr class="${hl?'hl':''}"><td>${labels[i]}</td><td>${fmt(b)}</td><td>+${fmt(fc)}</td><td>+${fmt(co)}</td><td><strong>${fmt(tot)}</strong></td></tr>`; }).join(''); }
+function buildDhlTable(iso,kg,fDhl,isGB){ let z=DHL_ZONE[iso]; let tb=document.getElementById('tbody-dhl'); if(!z){tb.innerHTML='<tr><td colspan="5" style="color:#aaa;text-align:center">No disponible</td></tr>';return;} let rows=DHL_TABLE.filter(r=>r[0]<=100); tb.innerHTML=rows.map(r=>{ let b=r[z.c],rkg=r[0],fc=b*fDhl/100,br=isGB?dhlBrexit(rkg):0,tot=b+fc+br; let ck=Math.ceil(kg); let ri=rows.indexOf(r); let hl=ck<=rkg&&(ri===0||ck>rows[ri-1][0]); return`<tr class="${hl?'hl':''}"><td>≤ ${rkg} kg</td><td>${fmt(b)}</td><td>+${fmt(fc)}</td><td>${isGB?'+'+fmt(br):'—'}</td><td><strong>${fmt(tot)}</strong></td></tr>`; }).join(''); }
+function showTab(id){ document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.rtable').forEach(t=>t.classList.remove('active')); document.querySelector(`[onclick="showTab('${id}')"]`).classList.add('active'); document.getElementById('tab-'+id).classList.add('active'); }
+
+// ==================== INICIALIZACIÓN ====================
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('sel-country').value = '';
+    loadDHLSurcharge();
+    loadGLSFuelSurcharge();
+    document.getElementById('btn-refresh-dhl')?.addEventListener('click', refreshDHLSurcharge);
+    document.getElementById('btn-refresh-gls')?.addEventListener('click', refreshGLSFuelSurcharge);
+});
+</script>
+</body>
+</html>
