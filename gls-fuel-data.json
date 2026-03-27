@@ -1,9 +1,9 @@
 {
   "rate": 11,
-  "pricePerLiter": 1.76,
-  "pricePer1000L": 1760,
-  "lastUpdate": "2026-03-26T15:34:49.130Z",
+  "pricePerLiter": 1.758,
+  "pricePer1000L": 1758,
+  "lastUpdate": "2026-03-27T08:51:27.876Z",
   "source": "clickgasoil.com",
   "status": "ok",
-  "note": "Precio gasóleo A Cataluña: 1.76 €/L → 11% combustible GLS"
+  "note": "Precio gasóleo A Cataluña: 1.758 €/L → 11% combustible GLS"
 }

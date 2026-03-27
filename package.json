@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Comparador de tarifas de transporte con suplementos de combustible actualizados automáticamente",
   "main": "server.js",
+  "bin": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
@@ -17,13 +18,22 @@
   "author": "Astepimer S.L.",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
+    "express": "^4.18.2",
     "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*",
+      "fuel-data.json",
+      "gls-fuel-data.json"
+    ],
+    "scripts": [
+      "server.js"
+    ]
   }
 }
